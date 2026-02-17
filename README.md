@@ -4,7 +4,12 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 
 ## Status
 
-**Phase 1 — MVP Core** (in progress)
+**Phase 2 — Subscriptions** ✅ complete
+
+**Phase 1 — MVP Core** ✅ complete
+
+<details>
+<summary>Phase 1 checklist</summary>
 
 - [x] Project scaffold, config, and tooling
 - [x] SQLite schema with migrations and FTS5 full-text search
@@ -19,7 +24,21 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 - [x] Sidebar navigation + keyboard shortcuts
 - [x] Dark/light/system theme toggle
 - [x] Settings page with card management and backup
-- [ ] `npm run dev` (Electron launch) — ready to wire up
+
+</details>
+
+<details>
+<summary>Phase 2 checklist</summary>
+
+- [x] `Subscription`, `SubscriptionWithCost`, `SubscriptionUpdate` shared types
+- [x] `subscription.service.ts` — recurring charge detection algorithm
+- [x] Detection groups transactions by normalised description, computes inter-charge intervals, classifies weekly / monthly / quarterly / annual cadence, requires ≥ 60% amount consistency
+- [x] `subscription.ipc.ts` — list, detect, update, archive IPC handlers
+- [x] `window.api.subscriptions.*` exposed via contextBridge
+- [x] `subscriptionsApi` renderer API layer + `useSubscriptions` hook
+- [x] `RecurringView` — summary stat cards, subscription list with cadence badges and cost columns, review-date modal, archive action, inactive toggle
+
+</details>
 
 ## Prerequisites
 
@@ -51,12 +70,13 @@ npx vitest run         # Single run
 npx vitest run --reporter=verbose   # Verbose output
 ```
 
-Current coverage:
+Current coverage (44 tests across 3 files):
 
 | File | Tests |
 |------|-------|
 | `tests/parsers/chase.parser.test.ts` | 8 — format detection, amount parsing, returns, dates, payments, same-day duplicates |
 | `tests/lib/format.test.ts` | 10 — formatCents, formatDate, formatMonth, monthStartEnd, currentMonth |
+| `tests/services/subscription.service.test.ts` | 26 — all four cadences, amount consistency threshold, payment exclusion, store-ID normalisation, transaction linking, upsert idempotency, CRUD, archive |
 
 ## Build
 
@@ -71,7 +91,7 @@ src/
 ├── main/                    # Electron main process (Node.js)
 │   ├── database/            # SQLite connection, migrations, backup
 │   ├── parsers/             # CSV parsers (Chase + registry for future banks)
-│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings
+│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription
 │   ├── ipc/                 # IPC handlers (one file per domain)
 │   ├── index.ts             # Main entry point
 │   └── preload.ts           # contextBridge: window.api.*
@@ -85,6 +105,7 @@ src/
 │   │   ├── layout/          # Sidebar, Toolbar
 │   │   ├── transactions/    # TransactionsView, TransactionTable, TransactionRow, TransactionDetail, SummaryBar
 │   │   ├── insights/        # InsightsDashboard, CategoryBreakdown, SpendingTrend
+│   │   ├── recurring/       # RecurringView (Phase 2)
 │   │   ├── import/          # ImportModal, DropZone, ImportSummary
 │   │   ├── settings/        # SettingsPage
 │   │   └── shared/          # AmountDisplay, CategoryBadge, KbdHint, StatCard, Modal, EmptyState, ShortcutsOverlay
@@ -101,9 +122,10 @@ sql/
 └── seed.sql                     # Chase categories + default settings
 
 tests/
-├── fixtures/chase-sample.csv   # Test CSV with normal, return, payment, and duplicate rows
+├── fixtures/chase-sample.csv          # Test CSV with normal, return, payment, and duplicate rows
 ├── parsers/chase.parser.test.ts
-└── lib/format.test.ts
+├── lib/format.test.ts
+└── services/subscription.service.test.ts  # 26 tests covering detection, CRUD, archive (in-memory SQLite)
 ```
 
 ## Architecture
