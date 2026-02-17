@@ -1,0 +1,44 @@
+import { ipcMain } from 'electron'
+import { IPC } from '../../shared/ipc-channels'
+import {
+  listSubscriptions,
+  updateSubscription,
+  archiveSubscription,
+  detectSubscriptions,
+} from '../services/subscription.service'
+import type { SubscriptionUpdate } from '../../shared/types'
+
+export function registerSubscriptionHandlers(): void {
+  ipcMain.handle(IPC.SUBSCRIPTIONS_LIST, () => {
+    try {
+      return { success: true, data: listSubscriptions() }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  ipcMain.handle(IPC.SUBSCRIPTIONS_DETECT, () => {
+    try {
+      return { success: true, data: detectSubscriptions() }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  ipcMain.handle(IPC.SUBSCRIPTIONS_UPDATE, (_event, data: SubscriptionUpdate) => {
+    try {
+      return { success: true, data: updateSubscription(data) }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  ipcMain.handle(IPC.SUBSCRIPTIONS_ARCHIVE, (_event, id: number) => {
+    try {
+      archiveSubscription(id)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+}

@@ -6,6 +6,7 @@ import { registerRuleHandlers } from './rule.ipc'
 import { registerSearchHandlers } from './search.ipc'
 import { registerSettingsHandlers } from './settings.ipc'
 import { registerBackupHandlers } from './backup.ipc'
+import { registerSubscriptionHandlers } from './subscription.ipc'
 
 export function registerAllHandlers(): void {
   registerTransactionHandlers()
@@ -16,4 +17,5 @@ export function registerAllHandlers(): void {
   registerSearchHandlers()
   registerSettingsHandlers()
   registerBackupHandlers()
+  registerSubscriptionHandlers()
 }

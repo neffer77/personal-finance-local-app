@@ -12,6 +12,7 @@ import type {
   RuleUpdate,
   ImportRequest,
   SettingUpdate,
+  SubscriptionUpdate,
 } from '../shared/types'
 
 interface ApiResponse<T> {
@@ -56,6 +57,12 @@ declare global {
         get: (key: string) => Promise<ApiResponse<unknown>>
         set: (update: SettingUpdate) => Promise<ApiResponse<unknown>>
         getAll: () => Promise<ApiResponse<unknown>>
+      }
+      subscriptions: {
+        list: () => Promise<ApiResponse<unknown>>
+        detect: () => Promise<ApiResponse<unknown>>
+        update: (data: SubscriptionUpdate) => Promise<ApiResponse<unknown>>
+        archive: (id: number) => Promise<ApiResponse<unknown>>
       }
       backup: {
         create: (destPath?: string) => Promise<ApiResponse<unknown>>

@@ -42,6 +42,12 @@ export const IPC = {
   SETTINGS_SET: 'settings:set',
   SETTINGS_GET_ALL: 'settings:get-all',
 
+  // Subscriptions
+  SUBSCRIPTIONS_LIST: 'subscriptions:list',
+  SUBSCRIPTIONS_DETECT: 'subscriptions:detect',
+  SUBSCRIPTIONS_UPDATE: 'subscriptions:update',
+  SUBSCRIPTIONS_ARCHIVE: 'subscriptions:archive',
+
   // Backup
   BACKUP_CREATE: 'backup:create',
   BACKUP_RESTORE: 'backup:restore',

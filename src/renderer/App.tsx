@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Sidebar } from './components/layout/Sidebar'
 import { TransactionsView } from './components/transactions/TransactionsView'
 import { InsightsDashboard } from './components/insights/InsightsDashboard'
+import { RecurringView } from './components/recurring/RecurringView'
 import { SettingsPage } from './components/settings/SettingsPage'
 import { ImportModal } from './components/import/ImportModal'
 import { ShortcutsOverlay } from './components/shared/ShortcutsOverlay'
@@ -55,12 +56,7 @@ export function App() {
       case 'insights':
         return <InsightsDashboard />
       case 'recurring':
-        return (
-          <PlaceholderView
-            title="Recurring Charges"
-            description="Auto-detected subscriptions and recurring payments (Phase 2)"
-          />
-        )
+        return <RecurringView />
       case 'goals':
         return (
           <PlaceholderView

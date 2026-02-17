@@ -11,6 +11,7 @@ import type {
   RuleUpdate,
   ImportRequest,
   SettingUpdate,
+  SubscriptionUpdate,
 } from '../shared/types'
 
 // Typed IPC API exposed to renderer via window.api
@@ -74,6 +75,17 @@ const api = {
       ipcRenderer.invoke(IPC.SETTINGS_SET, update),
     getAll: () =>
       ipcRenderer.invoke(IPC.SETTINGS_GET_ALL),
+  },
+
+  subscriptions: {
+    list: () =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_LIST),
+    detect: () =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_DETECT),
+    update: (data: SubscriptionUpdate) =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_UPDATE, data),
+    archive: (id: number) =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_ARCHIVE, id),
   },
 
   backup: {
