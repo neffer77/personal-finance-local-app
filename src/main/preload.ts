@@ -12,6 +12,9 @@ import type {
   ImportRequest,
   SettingUpdate,
   SubscriptionUpdate,
+  GoalCreate,
+  GoalUpdate,
+  SnapshotIncomeUpdate,
 } from '../shared/types'
 
 // Typed IPC API exposed to renderer via window.api
@@ -86,6 +89,26 @@ const api = {
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_UPDATE, data),
     archive: (id: number) =>
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_ARCHIVE, id),
+  },
+
+  goals: {
+    list: () =>
+      ipcRenderer.invoke(IPC.GOALS_LIST),
+    create: (data: GoalCreate) =>
+      ipcRenderer.invoke(IPC.GOALS_CREATE, data),
+    update: (data: GoalUpdate) =>
+      ipcRenderer.invoke(IPC.GOALS_UPDATE, data),
+    delete: (id: number) =>
+      ipcRenderer.invoke(IPC.GOALS_DELETE, id),
+  },
+
+  snapshots: {
+    list: (cardId?: number | null) =>
+      ipcRenderer.invoke(IPC.SNAPSHOTS_LIST, cardId),
+    updateIncome: (data: SnapshotIncomeUpdate) =>
+      ipcRenderer.invoke(IPC.SNAPSHOTS_UPDATE_INCOME, data),
+    summary: () =>
+      ipcRenderer.invoke(IPC.SNAPSHOTS_SUMMARY),
   },
 
   backup: {

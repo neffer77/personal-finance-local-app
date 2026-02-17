@@ -7,6 +7,8 @@ import { registerSearchHandlers } from './search.ipc'
 import { registerSettingsHandlers } from './settings.ipc'
 import { registerBackupHandlers } from './backup.ipc'
 import { registerSubscriptionHandlers } from './subscription.ipc'
+import { registerGoalHandlers } from './goal.ipc'
+import { registerSnapshotHandlers } from './snapshot.ipc'
 
 export function registerAllHandlers(): void {
   registerTransactionHandlers()
@@ -18,4 +20,6 @@ export function registerAllHandlers(): void {
   registerSettingsHandlers()
   registerBackupHandlers()
   registerSubscriptionHandlers()
+  registerGoalHandlers()
+  registerSnapshotHandlers()
 }

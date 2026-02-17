@@ -3,6 +3,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { TransactionsView } from './components/transactions/TransactionsView'
 import { InsightsDashboard } from './components/insights/InsightsDashboard'
 import { RecurringView } from './components/recurring/RecurringView'
+import { GoalsView } from './components/goals/GoalsView'
 import { SettingsPage } from './components/settings/SettingsPage'
 import { ImportModal } from './components/import/ImportModal'
 import { ShortcutsOverlay } from './components/shared/ShortcutsOverlay'
@@ -58,12 +59,7 @@ export function App() {
       case 'recurring':
         return <RecurringView />
       case 'goals':
-        return (
-          <PlaceholderView
-            title="Goals"
-            description="Track spending impact on your FIRE journey (Phase 3)"
-          />
-        )
+        return <GoalsView />
       case 'reports':
         return (
           <PlaceholderView

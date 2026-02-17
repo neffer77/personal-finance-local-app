@@ -4,6 +4,8 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 
 ## Status
 
+**Phase 3 — FIRE Integration** ✅ complete
+
 **Phase 2 — Subscriptions** ✅ complete
 
 **Phase 1 — MVP Core** ✅ complete
@@ -24,6 +26,20 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 - [x] Sidebar navigation + keyboard shortcuts
 - [x] Dark/light/system theme toggle
 - [x] Settings page with card management and backup
+
+</details>
+
+<details>
+<summary>Phase 3 checklist</summary>
+
+- [x] `Goal`, `GoalCreate`, `GoalUpdate` shared types; `SnapshotIncomeUpdate`, `SnapshotSummary` added to snapshot types
+- [x] `goal.service.ts` — CRUD + pure FIRE math: `futureValueCents`, `monthsToTarget`, `requiredMonthlySavingsCents`, `impactOfSpendCutCents`
+- [x] `snapshot.service.ts` extended — `updateSnapshotIncome` (income/savings entry, auto savings-rate), `getSnapshotSummary` (12-month rolling averages)
+- [x] `goal.ipc.ts` + `snapshot.ipc.ts` — IPC handlers for all channels; registered in `ipc/index.ts`
+- [x] `window.api.goals.*` and `window.api.snapshots.*` exposed via contextBridge
+- [x] `goalsApi` + `snapshotsApi` renderer API layer; `useGoals` + `useSnapshots` hooks
+- [x] `renderer/lib/fire.ts` — client-side math utilities for instant recalculation
+- [x] `GoalsView` — FIRE target form, avg-spend and savings-rate stat cards, time-to-FIRE projection, progress bar, impact-of-spend-cut calculator, monthly history table with inline income entry
 
 </details>
 
@@ -70,13 +86,15 @@ npx vitest run         # Single run
 npx vitest run --reporter=verbose   # Verbose output
 ```
 
-Current coverage (44 tests across 3 files):
+Current coverage (85 tests across 5 files):
 
 | File | Tests |
 |------|-------|
 | `tests/parsers/chase.parser.test.ts` | 8 — format detection, amount parsing, returns, dates, payments, same-day duplicates |
 | `tests/lib/format.test.ts` | 10 — formatCents, formatDate, formatMonth, monthStartEnd, currentMonth |
 | `tests/services/subscription.service.test.ts` | 26 — all four cadences, amount consistency threshold, payment exclusion, store-ID normalisation, transaction linking, upsert idempotency, CRUD, archive |
+| `tests/services/goal.service.test.ts` | 23 — CRUD, futureValueCents, monthsToTarget, requiredMonthlySavingsCents, impactOfSpendCutCents |
+| `tests/services/snapshot.service.test.ts` | 18 — income update, savings-rate computation, null income, card isolation, summary averages, camelCase mapping |
 
 ## Build
 
@@ -91,7 +109,7 @@ src/
 ├── main/                    # Electron main process (Node.js)
 │   ├── database/            # SQLite connection, migrations, backup
 │   ├── parsers/             # CSV parsers (Chase + registry for future banks)
-│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription
+│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription, goal
 │   ├── ipc/                 # IPC handlers (one file per domain)
 │   ├── index.ts             # Main entry point
 │   └── preload.ts           # contextBridge: window.api.*
@@ -100,12 +118,13 @@ src/
 │   ├── api/                 # Typed wrappers over window.api.*
 │   ├── stores/              # Zustand stores (app, filter, ui)
 │   ├── hooks/               # Data-fetching hooks (useTransactions, useSearch, etc.)
-│   ├── lib/                 # format.ts (cents→$), analytics.ts, constants.ts
+│   ├── lib/                 # format.ts (cents→$), analytics.ts, fire.ts (FIRE math), constants.ts
 │   ├── components/
 │   │   ├── layout/          # Sidebar, Toolbar
 │   │   ├── transactions/    # TransactionsView, TransactionTable, TransactionRow, TransactionDetail, SummaryBar
 │   │   ├── insights/        # InsightsDashboard, CategoryBreakdown, SpendingTrend
 │   │   ├── recurring/       # RecurringView (Phase 2)
+│   │   ├── goals/           # GoalsView (Phase 3)
 │   │   ├── import/          # ImportModal, DropZone, ImportSummary
 │   │   ├── settings/        # SettingsPage
 │   │   └── shared/          # AmountDisplay, CategoryBadge, KbdHint, StatCard, Modal, EmptyState, ShortcutsOverlay
@@ -125,7 +144,9 @@ tests/
 ├── fixtures/chase-sample.csv          # Test CSV with normal, return, payment, and duplicate rows
 ├── parsers/chase.parser.test.ts
 ├── lib/format.test.ts
-└── services/subscription.service.test.ts  # 26 tests covering detection, CRUD, archive (in-memory SQLite)
+├── services/subscription.service.test.ts  # 26 tests covering detection, CRUD, archive (in-memory SQLite)
+├── services/goal.service.test.ts          # 23 tests — CRUD + FIRE math accuracy (in-memory SQLite)
+└── services/snapshot.service.test.ts     # 18 tests — income update, savings rate, summary (in-memory SQLite)
 ```
 
 ## Architecture

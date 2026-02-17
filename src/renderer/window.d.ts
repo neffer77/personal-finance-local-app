@@ -13,6 +13,9 @@ import type {
   ImportRequest,
   SettingUpdate,
   SubscriptionUpdate,
+  GoalCreate,
+  GoalUpdate,
+  SnapshotIncomeUpdate,
 } from '../shared/types'
 
 interface ApiResponse<T> {
@@ -63,6 +66,17 @@ declare global {
         detect: () => Promise<ApiResponse<unknown>>
         update: (data: SubscriptionUpdate) => Promise<ApiResponse<unknown>>
         archive: (id: number) => Promise<ApiResponse<unknown>>
+      }
+      goals: {
+        list: () => Promise<ApiResponse<unknown>>
+        create: (data: GoalCreate) => Promise<ApiResponse<unknown>>
+        update: (data: GoalUpdate) => Promise<ApiResponse<unknown>>
+        delete: (id: number) => Promise<ApiResponse<unknown>>
+      }
+      snapshots: {
+        list: (cardId?: number | null) => Promise<ApiResponse<unknown>>
+        updateIncome: (data: SnapshotIncomeUpdate) => Promise<ApiResponse<unknown>>
+        summary: () => Promise<ApiResponse<unknown>>
       }
       backup: {
         create: (destPath?: string) => Promise<ApiResponse<unknown>>
