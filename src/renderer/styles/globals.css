@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   CSS Variables — Design Tokens (light mode defaults)
+   ============================================================================ */
+:root {
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #F7F7F8;
+  --color-bg-hover: #F0F0F2;
+  --color-bg-active: #E8E8EC;
+  --color-bg-panel: #FBFBFC;
+  --color-bg-card: #FFFFFF;
+  --color-border: #E4E4E7;
+  --color-border-subtle: #F0F0F2;
+  --color-text: #18181B;
+  --color-text-secondary: #71717A;
+  --color-text-tertiary: #A1A1AA;
+  --color-accent: #2563EB;
+  --color-accent-subtle: #EFF6FF;
+  --color-green: #16A34A;
+  --color-green-subtle: #F0FDF4;
+  --color-red: #DC2626;
+  --color-red-subtle: #FEF2F2;
+  --color-orange: #EA580C;
+  --color-orange-subtle: #FFF7ED;
+  --color-purple: #7C3AED;
+  --color-purple-subtle: #F5F3FF;
+}
+
+/* Dark mode token overrides */
+.dark {
+  --color-bg: #09090B;
+  --color-bg-subtle: #18181B;
+  --color-bg-hover: #27272A;
+  --color-bg-active: #3F3F46;
+  --color-bg-panel: #111113;
+  --color-bg-card: #18181B;
+  --color-border: #27272A;
+  --color-border-subtle: #1E1E22;
+  --color-text: #FAFAFA;
+  --color-text-secondary: #A1A1AA;
+  --color-text-tertiary: #52525B;
+  --color-accent: #3B82F6;
+  --color-accent-subtle: #172554;
+  --color-green: #22C55E;
+  --color-green-subtle: #052E16;
+  --color-red: #EF4444;
+  --color-red-subtle: #450A0A;
+  --color-orange: #F97316;
+  --color-orange-subtle: #431407;
+  --color-purple: #8B5CF6;
+  --color-purple-subtle: #2E1065;
+}
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Geist', 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+}
+
+/* Selection */
+::selection {
+  background: rgba(37, 99, 235, 0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-active);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Typography utilities
+   ============================================================================ */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-slide-in  { animation: slideIn  0.15s ease; }
+.animate-slide-down { animation: slideDown 0.2s ease; }
+.animate-fade-in   { animation: fadeIn   0.15s ease; }
