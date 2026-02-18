@@ -9,6 +9,8 @@ import { registerBackupHandlers } from './backup.ipc'
 import { registerSubscriptionHandlers } from './subscription.ipc'
 import { registerGoalHandlers } from './goal.ipc'
 import { registerSnapshotHandlers } from './snapshot.ipc'
+import { registerUserHandlers } from './user.ipc'
+import { registerReportHandlers } from './report.ipc'
 
 export function registerAllHandlers(): void {
   registerTransactionHandlers()
@@ -22,4 +24,6 @@ export function registerAllHandlers(): void {
   registerSubscriptionHandlers()
   registerGoalHandlers()
   registerSnapshotHandlers()
+  registerUserHandlers()
+  registerReportHandlers()
 }

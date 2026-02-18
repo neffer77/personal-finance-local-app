@@ -16,6 +16,8 @@ import type {
   GoalCreate,
   GoalUpdate,
   SnapshotIncomeUpdate,
+  UserCreate,
+  ReportFilter,
 } from '../shared/types'
 
 interface ApiResponse<T> {
@@ -77,6 +79,15 @@ declare global {
         list: (cardId?: number | null) => Promise<ApiResponse<unknown>>
         updateIncome: (data: SnapshotIncomeUpdate) => Promise<ApiResponse<unknown>>
         summary: () => Promise<ApiResponse<unknown>>
+      }
+      users: {
+        list: () => Promise<ApiResponse<unknown>>
+        create: (data: UserCreate) => Promise<ApiResponse<unknown>>
+        seed: () => Promise<ApiResponse<unknown>>
+      }
+      reports: {
+        summary: (filter: ReportFilter) => Promise<ApiResponse<unknown>>
+        owners: () => Promise<ApiResponse<unknown>>
       }
       backup: {
         create: (destPath?: string) => Promise<ApiResponse<unknown>>

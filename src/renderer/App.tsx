@@ -4,6 +4,7 @@ import { TransactionsView } from './components/transactions/TransactionsView'
 import { InsightsDashboard } from './components/insights/InsightsDashboard'
 import { RecurringView } from './components/recurring/RecurringView'
 import { GoalsView } from './components/goals/GoalsView'
+import { ReportsDashboard } from './components/reports/ReportsDashboard'
 import { SettingsPage } from './components/settings/SettingsPage'
 import { ImportModal } from './components/import/ImportModal'
 import { ShortcutsOverlay } from './components/shared/ShortcutsOverlay'
@@ -61,12 +62,7 @@ export function App() {
       case 'goals':
         return <GoalsView />
       case 'reports':
-        return (
-          <PlaceholderView
-            title="Reports"
-            description="Shareable summaries for household review (Phase 4)"
-          />
-        )
+        return <ReportsDashboard />
       case 'settings':
         return <SettingsPage />
       default:

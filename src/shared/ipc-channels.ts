@@ -59,6 +59,15 @@ export const IPC = {
   SNAPSHOTS_UPDATE_INCOME: 'snapshots:update-income',
   SNAPSHOTS_SUMMARY: 'snapshots:summary',
 
+  // Users (Phase 4)
+  USERS_LIST: 'users:list',
+  USERS_CREATE: 'users:create',
+  USERS_SEED: 'users:seed',
+
+  // Reports (Phase 4)
+  REPORTS_SUMMARY: 'reports:summary',
+  REPORTS_OWNERS: 'reports:owners',
+
   // Backup
   BACKUP_CREATE: 'backup:create',
   BACKUP_RESTORE: 'backup:restore',

@@ -15,6 +15,8 @@ import type {
   GoalCreate,
   GoalUpdate,
   SnapshotIncomeUpdate,
+  UserCreate,
+  ReportFilter,
 } from '../shared/types'
 
 // Typed IPC API exposed to renderer via window.api
@@ -109,6 +111,22 @@ const api = {
       ipcRenderer.invoke(IPC.SNAPSHOTS_UPDATE_INCOME, data),
     summary: () =>
       ipcRenderer.invoke(IPC.SNAPSHOTS_SUMMARY),
+  },
+
+  users: {
+    list: () =>
+      ipcRenderer.invoke(IPC.USERS_LIST),
+    create: (data: UserCreate) =>
+      ipcRenderer.invoke(IPC.USERS_CREATE, data),
+    seed: () =>
+      ipcRenderer.invoke(IPC.USERS_SEED),
+  },
+
+  reports: {
+    summary: (filter: ReportFilter) =>
+      ipcRenderer.invoke(IPC.REPORTS_SUMMARY, filter),
+    owners: () =>
+      ipcRenderer.invoke(IPC.REPORTS_OWNERS),
   },
 
   backup: {

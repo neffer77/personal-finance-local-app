@@ -4,6 +4,8 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 
 ## Status
 
+**Phase 4 — Multi-User & Sharing** ✅ complete
+
 **Phase 3 — FIRE Integration** ✅ complete
 
 **Phase 2 — Subscriptions** ✅ complete
@@ -26,6 +28,19 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 - [x] Sidebar navigation + keyboard shortcuts
 - [x] Dark/light/system theme toggle
 - [x] Settings page with card management and backup
+
+</details>
+
+<details>
+<summary>Phase 4 checklist</summary>
+
+- [x] `User`, `UserCreate`, `ReportFilter`, `ReportSummary`, `ReportCategory`, `ReportMonth`, `ReportPeriod` shared types
+- [x] `user.service.ts` — list users, create user, `seedUsersFromCards` (auto-populates `users` table from card owners), `listCardOwners`
+- [x] `report.service.ts` — `generateReport` (totals, monthly breakdown, category top-10, subscription monthly cost, avg savings rate) + `listOwners`
+- [x] `user.ipc.ts` + `report.ipc.ts` — IPC handlers for all channels; registered in `ipc/index.ts`
+- [x] `window.api.users.*` and `window.api.reports.*` exposed via contextBridge
+- [x] `usersApi` + `reportsApi` renderer API layer; `useUsers` + `useReport` hooks
+- [x] `ReportsDashboard` — period selector (3/6/12 months, YTD), owner tabs (Household / Connor / Heather), stat cards, category breakdown with progress bars, monthly trend bar chart + table, savings rate banner, household drill-down links, Print/Share button
 
 </details>
 
@@ -86,7 +101,7 @@ npx vitest run         # Single run
 npx vitest run --reporter=verbose   # Verbose output
 ```
 
-Current coverage (85 tests across 5 files):
+Current coverage (123 tests across 7 files):
 
 | File | Tests |
 |------|-------|
@@ -95,6 +110,8 @@ Current coverage (85 tests across 5 files):
 | `tests/services/subscription.service.test.ts` | 26 — all four cadences, amount consistency threshold, payment exclusion, store-ID normalisation, transaction linking, upsert idempotency, CRUD, archive |
 | `tests/services/goal.service.test.ts` | 23 — CRUD, futureValueCents, monthsToTarget, requiredMonthlySavingsCents, impactOfSpendCutCents |
 | `tests/services/snapshot.service.test.ts` | 18 — income update, savings-rate computation, null income, card isolation, summary averages, camelCase mapping |
+| `tests/services/user.service.test.ts` | 13 — createUser, listUsers (order), seedUsersFromCards (idempotency, primary selection, blank-owner skip), listCardOwners |
+| `tests/services/report.service.test.ts` | 25 — totals, owner filter, monthly breakdown, category grouping + percentages, subscription cost (monthly/annual/quarterly), savings rate, listOwners |
 
 ## Build
 
@@ -109,7 +126,7 @@ src/
 ├── main/                    # Electron main process (Node.js)
 │   ├── database/            # SQLite connection, migrations, backup
 │   ├── parsers/             # CSV parsers (Chase + registry for future banks)
-│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription, goal
+│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription, goal, user, report
 │   ├── ipc/                 # IPC handlers (one file per domain)
 │   ├── index.ts             # Main entry point
 │   └── preload.ts           # contextBridge: window.api.*
@@ -125,6 +142,7 @@ src/
 │   │   ├── insights/        # InsightsDashboard, CategoryBreakdown, SpendingTrend
 │   │   ├── recurring/       # RecurringView (Phase 2)
 │   │   ├── goals/           # GoalsView (Phase 3)
+│   │   ├── reports/         # ReportsDashboard (Phase 4)
 │   │   ├── import/          # ImportModal, DropZone, ImportSummary
 │   │   ├── settings/        # SettingsPage
 │   │   └── shared/          # AmountDisplay, CategoryBadge, KbdHint, StatCard, Modal, EmptyState, ShortcutsOverlay
@@ -146,7 +164,9 @@ tests/
 ├── lib/format.test.ts
 ├── services/subscription.service.test.ts  # 26 tests covering detection, CRUD, archive (in-memory SQLite)
 ├── services/goal.service.test.ts          # 23 tests — CRUD + FIRE math accuracy (in-memory SQLite)
-└── services/snapshot.service.test.ts     # 18 tests — income update, savings rate, summary (in-memory SQLite)
+├── services/snapshot.service.test.ts      # 18 tests — income update, savings rate, summary (in-memory SQLite)
+├── services/user.service.test.ts          # 13 tests — createUser, listUsers, seedUsersFromCards, listCardOwners
+└── services/report.service.test.ts        # 25 tests — totals, owner filter, monthly breakdown, categories, subs, savings rate
 ```
 
 ## Architecture
