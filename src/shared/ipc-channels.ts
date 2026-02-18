@@ -48,6 +48,26 @@ export const IPC = {
   SUBSCRIPTIONS_UPDATE: 'subscriptions:update',
   SUBSCRIPTIONS_ARCHIVE: 'subscriptions:archive',
 
+  // Goals (Phase 3)
+  GOALS_LIST: 'goals:list',
+  GOALS_CREATE: 'goals:create',
+  GOALS_UPDATE: 'goals:update',
+  GOALS_DELETE: 'goals:delete',
+
+  // Snapshots (Phase 3)
+  SNAPSHOTS_LIST: 'snapshots:list',
+  SNAPSHOTS_UPDATE_INCOME: 'snapshots:update-income',
+  SNAPSHOTS_SUMMARY: 'snapshots:summary',
+
+  // Users (Phase 4)
+  USERS_LIST: 'users:list',
+  USERS_CREATE: 'users:create',
+  USERS_SEED: 'users:seed',
+
+  // Reports (Phase 4)
+  REPORTS_SUMMARY: 'reports:summary',
+  REPORTS_OWNERS: 'reports:owners',
+
   // Backup
   BACKUP_CREATE: 'backup:create',
   BACKUP_RESTORE: 'backup:restore',

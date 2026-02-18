@@ -4,7 +4,16 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 
 ## Status
 
-**Phase 1 — MVP Core** (in progress)
+**Phase 4 — Multi-User & Sharing** ✅ complete
+
+**Phase 3 — FIRE Integration** ✅ complete
+
+**Phase 2 — Subscriptions** ✅ complete
+
+**Phase 1 — MVP Core** ✅ complete
+
+<details>
+<summary>Phase 1 checklist</summary>
 
 - [x] Project scaffold, config, and tooling
 - [x] SQLite schema with migrations and FTS5 full-text search
@@ -19,7 +28,48 @@ A local-first Electron desktop app for analyzing Chase credit card CSV exports. 
 - [x] Sidebar navigation + keyboard shortcuts
 - [x] Dark/light/system theme toggle
 - [x] Settings page with card management and backup
-- [ ] `npm run dev` (Electron launch) — ready to wire up
+
+</details>
+
+<details>
+<summary>Phase 4 checklist</summary>
+
+- [x] `User`, `UserCreate`, `ReportFilter`, `ReportSummary`, `ReportCategory`, `ReportMonth`, `ReportPeriod` shared types
+- [x] `user.service.ts` — list users, create user, `seedUsersFromCards` (auto-populates `users` table from card owners), `listCardOwners`
+- [x] `report.service.ts` — `generateReport` (totals, monthly breakdown, category top-10, subscription monthly cost, avg savings rate) + `listOwners`
+- [x] `user.ipc.ts` + `report.ipc.ts` — IPC handlers for all channels; registered in `ipc/index.ts`
+- [x] `window.api.users.*` and `window.api.reports.*` exposed via contextBridge
+- [x] `usersApi` + `reportsApi` renderer API layer; `useUsers` + `useReport` hooks
+- [x] `ReportsDashboard` — period selector (3/6/12 months, YTD), owner tabs (Household / Connor / Heather), stat cards, category breakdown with progress bars, monthly trend bar chart + table, savings rate banner, household drill-down links, Print/Share button
+
+</details>
+
+<details>
+<summary>Phase 3 checklist</summary>
+
+- [x] `Goal`, `GoalCreate`, `GoalUpdate` shared types; `SnapshotIncomeUpdate`, `SnapshotSummary` added to snapshot types
+- [x] `goal.service.ts` — CRUD + pure FIRE math: `futureValueCents`, `monthsToTarget`, `requiredMonthlySavingsCents`, `impactOfSpendCutCents`
+- [x] `snapshot.service.ts` extended — `updateSnapshotIncome` (income/savings entry, auto savings-rate), `getSnapshotSummary` (12-month rolling averages)
+- [x] `goal.ipc.ts` + `snapshot.ipc.ts` — IPC handlers for all channels; registered in `ipc/index.ts`
+- [x] `window.api.goals.*` and `window.api.snapshots.*` exposed via contextBridge
+- [x] `goalsApi` + `snapshotsApi` renderer API layer; `useGoals` + `useSnapshots` hooks
+- [x] `renderer/lib/fire.ts` — client-side math utilities for instant recalculation
+- [x] `GoalsView` — FIRE target form, avg-spend and savings-rate stat cards, time-to-FIRE projection, progress bar, impact-of-spend-cut calculator, monthly history table with inline income entry
+
+</details>
+
+<details>
+<summary>Phase 2 checklist</summary>
+
+- [x] `Subscription`, `SubscriptionWithCost`, `SubscriptionUpdate` shared types
+- [x] `subscription.service.ts` — recurring charge detection algorithm
+- [x] Detection groups transactions by normalised description, computes inter-charge intervals, classifies weekly / monthly / quarterly / annual cadence, requires ≥ 60% amount consistency
+- [x] `subscription.ipc.ts` — list, detect, update, archive IPC handlers
+- [x] `window.api.subscriptions.*` exposed via contextBridge
+- [x] `subscriptionsApi` renderer API layer + `useSubscriptions` hook
+- [x] `RecurringView` — summary stat cards, subscription list with cadence badges and cost columns, review-date modal, archive action, inactive toggle
+
+</details>
 
 ## Prerequisites
 
@@ -51,12 +101,17 @@ npx vitest run         # Single run
 npx vitest run --reporter=verbose   # Verbose output
 ```
 
-Current coverage:
+Current coverage (123 tests across 7 files):
 
 | File | Tests |
 |------|-------|
 | `tests/parsers/chase.parser.test.ts` | 8 — format detection, amount parsing, returns, dates, payments, same-day duplicates |
 | `tests/lib/format.test.ts` | 10 — formatCents, formatDate, formatMonth, monthStartEnd, currentMonth |
+| `tests/services/subscription.service.test.ts` | 26 — all four cadences, amount consistency threshold, payment exclusion, store-ID normalisation, transaction linking, upsert idempotency, CRUD, archive |
+| `tests/services/goal.service.test.ts` | 23 — CRUD, futureValueCents, monthsToTarget, requiredMonthlySavingsCents, impactOfSpendCutCents |
+| `tests/services/snapshot.service.test.ts` | 18 — income update, savings-rate computation, null income, card isolation, summary averages, camelCase mapping |
+| `tests/services/user.service.test.ts` | 13 — createUser, listUsers (order), seedUsersFromCards (idempotency, primary selection, blank-owner skip), listCardOwners |
+| `tests/services/report.service.test.ts` | 25 — totals, owner filter, monthly breakdown, category grouping + percentages, subscription cost (monthly/annual/quarterly), savings rate, listOwners |
 
 ## Build
 
@@ -71,7 +126,7 @@ src/
 ├── main/                    # Electron main process (Node.js)
 │   ├── database/            # SQLite connection, migrations, backup
 │   ├── parsers/             # CSV parsers (Chase + registry for future banks)
-│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings
+│   ├── services/            # Business logic — transaction, card, category, rule, import, search, snapshot, settings, subscription, goal, user, report
 │   ├── ipc/                 # IPC handlers (one file per domain)
 │   ├── index.ts             # Main entry point
 │   └── preload.ts           # contextBridge: window.api.*
@@ -80,11 +135,14 @@ src/
 │   ├── api/                 # Typed wrappers over window.api.*
 │   ├── stores/              # Zustand stores (app, filter, ui)
 │   ├── hooks/               # Data-fetching hooks (useTransactions, useSearch, etc.)
-│   ├── lib/                 # format.ts (cents→$), analytics.ts, constants.ts
+│   ├── lib/                 # format.ts (cents→$), analytics.ts, fire.ts (FIRE math), constants.ts
 │   ├── components/
 │   │   ├── layout/          # Sidebar, Toolbar
 │   │   ├── transactions/    # TransactionsView, TransactionTable, TransactionRow, TransactionDetail, SummaryBar
 │   │   ├── insights/        # InsightsDashboard, CategoryBreakdown, SpendingTrend
+│   │   ├── recurring/       # RecurringView (Phase 2)
+│   │   ├── goals/           # GoalsView (Phase 3)
+│   │   ├── reports/         # ReportsDashboard (Phase 4)
 │   │   ├── import/          # ImportModal, DropZone, ImportSummary
 │   │   ├── settings/        # SettingsPage
 │   │   └── shared/          # AmountDisplay, CategoryBadge, KbdHint, StatCard, Modal, EmptyState, ShortcutsOverlay
@@ -101,9 +159,14 @@ sql/
 └── seed.sql                     # Chase categories + default settings
 
 tests/
-├── fixtures/chase-sample.csv   # Test CSV with normal, return, payment, and duplicate rows
+├── fixtures/chase-sample.csv          # Test CSV with normal, return, payment, and duplicate rows
 ├── parsers/chase.parser.test.ts
-└── lib/format.test.ts
+├── lib/format.test.ts
+├── services/subscription.service.test.ts  # 26 tests covering detection, CRUD, archive (in-memory SQLite)
+├── services/goal.service.test.ts          # 23 tests — CRUD + FIRE math accuracy (in-memory SQLite)
+├── services/snapshot.service.test.ts      # 18 tests — income update, savings rate, summary (in-memory SQLite)
+├── services/user.service.test.ts          # 13 tests — createUser, listUsers, seedUsersFromCards, listCardOwners
+└── services/report.service.test.ts        # 25 tests — totals, owner filter, monthly breakdown, categories, subs, savings rate
 ```
 
 ## Architecture

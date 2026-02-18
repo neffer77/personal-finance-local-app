@@ -1,5 +1,5 @@
 import { getDatabase } from '../database/connection'
-import type { MonthlySnapshot } from '../../shared/types'
+import type { MonthlySnapshot, SnapshotIncomeUpdate, SnapshotSummary } from '../../shared/types'
 
 interface SnapshotRow {
   id: number
@@ -89,6 +89,97 @@ export function recomputeSnapshot(month: string, cardId: number | null): void {
     agg.net_spend_cents ?? 0,
     agg.transaction_count ?? 0,
   )
+}
+
+/**
+ * Write manually-entered income / savings for a given month.
+ * Savings rate is auto-computed when both values are present.
+ * Creates the snapshot row if it doesn't exist yet.
+ */
+export function updateSnapshotIncome(data: SnapshotIncomeUpdate): MonthlySnapshot {
+  const db = getDatabase()
+
+  const savingsRate =
+    data.incomeCents != null && data.incomeCents > 0 && data.savingsCents != null
+      ? data.savingsCents / data.incomeCents
+      : null
+
+  // Ensure a row exists for this month/card before updating income fields
+  const cardFilter = data.cardId != null ? 'AND card_id = ?' : 'AND card_id IS NULL'
+  const existsParams: (string | number)[] = [data.month]
+  if (data.cardId != null) existsParams.push(data.cardId)
+
+  const exists = db.prepare(
+    `SELECT id FROM monthly_snapshots WHERE month = ? ${cardFilter}`,
+  ).get(...existsParams)
+
+  if (!exists) {
+    db.prepare(`
+      INSERT INTO monthly_snapshots
+        (month, card_id, total_spend_cents, total_credits_cents, net_spend_cents, transaction_count,
+         income_cents, savings_cents, savings_rate)
+      VALUES (?, ?, 0, 0, 0, 0, ?, ?, ?)
+    `).run(data.month, data.cardId, data.incomeCents, data.savingsCents, savingsRate)
+  } else {
+    const updateParams: (string | number | null)[] = [
+      data.incomeCents,
+      data.savingsCents,
+      savingsRate,
+      data.month,
+    ]
+    if (data.cardId != null) updateParams.push(data.cardId)
+
+    db.prepare(`
+      UPDATE monthly_snapshots
+      SET income_cents = ?, savings_cents = ?, savings_rate = ?,
+          updated_at = datetime('now')
+      WHERE month = ? ${cardFilter}
+    `).run(...updateParams)
+  }
+
+  const row = db.prepare(
+    `SELECT * FROM monthly_snapshots WHERE month = ? ${cardFilter}`,
+  ).get(...existsParams) as SnapshotRow
+  return rowToSnapshot(row)
+}
+
+/**
+ * Rolling summary across the last 12 household-total snapshots.
+ * Used by the GoalsView to derive average monthly spend and savings rate.
+ */
+export function getSnapshotSummary(): SnapshotSummary {
+  const db = getDatabase()
+
+  interface AggRow {
+    avg_spend: number | null
+    avg_credits: number | null
+    avg_net: number | null
+    avg_savings_rate: number | null
+    months_with_income: number
+    latest_month: string | null
+  }
+
+  const agg = db.prepare(`
+    SELECT
+      AVG(total_spend_cents)   AS avg_spend,
+      AVG(total_credits_cents) AS avg_credits,
+      AVG(net_spend_cents)     AS avg_net,
+      AVG(CASE WHEN savings_rate IS NOT NULL THEN savings_rate END) AS avg_savings_rate,
+      COUNT(CASE WHEN income_cents IS NOT NULL THEN 1 END) AS months_with_income,
+      MAX(month) AS latest_month
+    FROM monthly_snapshots
+    WHERE card_id IS NULL
+      AND month >= strftime('%Y-%m', date('now', '-12 months'))
+  `).get() as AggRow
+
+  return {
+    avgMonthlySpendCents: Math.round(agg.avg_spend ?? 0),
+    avgMonthlyCreditsCents: Math.round(agg.avg_credits ?? 0),
+    avgMonthlyNetSpendCents: Math.round(agg.avg_net ?? 0),
+    avgSavingsRate: agg.avg_savings_rate,
+    monthsWithIncome: agg.months_with_income,
+    latestMonth: agg.latest_month,
+  }
 }
 
 // Call after any import to recompute affected months
