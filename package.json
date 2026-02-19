@@ -4,7 +4,7 @@
   "description": "Local-first Chase credit card statement analyzer",
   "main": "dist/main/index.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"electron .\"",
+    "dev": "npm run build:main && concurrently \"tsc -p tsconfig.node.json --watch --preserveWatchOutput\" \"vite\" \"electron .\"",
     "dev:renderer": "vite",
     "dev:electron": "electron .",
     "build": "tsc -p tsconfig.node.json && vite build && electron-builder",
