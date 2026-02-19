@@ -1,5 +1,4 @@
 import { ipcMain, app } from 'electron'
-import path from 'path'
 import { IPC } from '../../shared/ipc-channels'
 import { createBackup, getDefaultBackupPath } from '../database/backup'
 
