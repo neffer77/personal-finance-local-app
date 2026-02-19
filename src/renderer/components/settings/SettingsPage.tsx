@@ -11,6 +11,7 @@ export function SettingsPage() {
   const [showAddCard, setShowAddCard] = useState(false)
   const [newCardName, setNewCardName] = useState('')
   const [newCardOwner, setNewCardOwner] = useState('')
+  const [addCardError, setAddCardError] = useState<string | null>(null)
 
   const handleThemeChange = async (theme: Theme) => {
     await updateSetting({ key: 'theme', value: theme })
@@ -27,10 +28,15 @@ export function SettingsPage() {
 
   const handleAddCard = async () => {
     if (!newCardName || !newCardOwner) return
-    await createCard({ name: newCardName, owner: newCardOwner })
-    setNewCardName('')
-    setNewCardOwner('')
-    setShowAddCard(false)
+    setAddCardError(null)
+    try {
+      await createCard({ name: newCardName, owner: newCardOwner })
+      setNewCardName('')
+      setNewCardOwner('')
+      setShowAddCard(false)
+    } catch (err) {
+      setAddCardError(err instanceof Error ? err.message : 'Failed to add card')
+    }
   }
 
   const theme = settings?.theme ?? 'system'
@@ -100,6 +106,9 @@ export function SettingsPage() {
               placeholder="Owner name (e.g. Connor)"
               className="px-[10px] py-[7px] rounded-[6px] border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] text-[12px] outline-none focus:border-[var(--color-accent)]"
             />
+            {addCardError && (
+              <div className="text-[11px] text-red-500">{addCardError}</div>
+            )}
             <div className="flex gap-[8px]">
               <button
                 onClick={handleAddCard}
@@ -109,7 +118,7 @@ export function SettingsPage() {
                 Add Card
               </button>
               <button
-                onClick={() => setShowAddCard(false)}
+                onClick={() => { setShowAddCard(false); setAddCardError(null) }}
                 className="px-[14px] py-[7px] rounded-[6px] text-[12px] font-[500] border border-[var(--color-border)] text-[var(--color-text-secondary)] bg-transparent cursor-pointer hover:bg-[var(--color-bg-hover)]"
               >
                 Cancel
