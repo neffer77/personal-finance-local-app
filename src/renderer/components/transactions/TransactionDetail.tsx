@@ -36,7 +36,7 @@ export function TransactionDetail({ transaction: tx, onClose, onUpdated }: Trans
   }
 
   return (
-    <div className="w-side-panel min-w-side-panel border-l border-[var(--color-border)] bg-[var(--color-bg-panel)] h-screen animate-slide-in flex flex-col">
+    <div className="w-side-panel min-w-side-panel border-l border-[var(--color-border)] bg-[var(--color-bg-panel)] h-full animate-slide-in flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-[20px] py-[18px] border-b border-[var(--color-border)] flex-shrink-0">
         <span className="text-[12px] font-[600] text-[var(--color-text-secondary)] tracking-[0.03em] uppercase">
