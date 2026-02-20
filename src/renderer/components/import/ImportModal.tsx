@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from '../shared/Modal'
 import { DropZone } from './DropZone'
 import { ImportSummary } from './ImportSummary'
@@ -11,10 +11,17 @@ export function ImportModal() {
   const { closeImportModal } = useUiStore()
   const { cards } = useCards()
   const [filePath, setFilePath] = useState<string | null>(null)
-  const [cardId, setCardId] = useState<number | null>(cards[0]?.id ?? null)
+  const [cardId, setCardId] = useState<number | null>(null)
   const [importing, setImporting] = useState(false)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Auto-select first card when cards load
+  useEffect(() => {
+    if (cards.length > 0 && !cardId) {
+      setCardId(cards[0].id)
+    }
+  }, [cards, cardId])
 
   const handleImport = async () => {
     if (!filePath || !cardId) return
