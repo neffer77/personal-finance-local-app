@@ -16,7 +16,9 @@ export function registerCardHandlers(): void {
     try {
       return { success: true, data: createCard(data) }
     } catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : String(err) }
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[cards:create] error:', message)
+      return { success: false, error: message }
     }
   })
 

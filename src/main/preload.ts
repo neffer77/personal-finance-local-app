@@ -19,6 +19,8 @@ import type {
   ReportFilter,
 } from '../shared/types'
 
+console.log('[preload] Preload script starting, imports successful')
+
 // Typed IPC API exposed to renderer via window.api
 const api = {
   transactions: {
@@ -147,6 +149,7 @@ const api = {
 }
 
 contextBridge.exposeInMainWorld('api', api)
+console.log('[preload] window.api successfully exposed via contextBridge')
 
 // Type export for renderer usage
 export type ElectronAPI = typeof api

@@ -10,13 +10,17 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 let mainWindow: BrowserWindow | null = null
 
 function createWindow(): void {
+  const preloadPath = path.join(__dirname, 'preload.js')
+  console.log('[main] Creating window with preload:', preloadPath)
+  console.log('[main] __dirname:', __dirname)
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
     minWidth: 1024,
     minHeight: 640,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
     },
