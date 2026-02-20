@@ -36,7 +36,7 @@ export function TransactionDetail({ transaction: tx, onClose, onUpdated }: Trans
   }
 
   return (
-    <div className="w-side-panel min-w-side-panel border-l border-[var(--color-border)] bg-[var(--color-bg-panel)] h-screen overflow-y-auto animate-slide-in flex flex-col">
+    <div className="w-side-panel min-w-side-panel border-l border-[var(--color-border)] bg-[var(--color-bg-panel)] h-screen animate-slide-in flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-[20px] py-[18px] border-b border-[var(--color-border)] flex-shrink-0">
         <span className="text-[12px] font-[600] text-[var(--color-text-secondary)] tracking-[0.03em] uppercase">
@@ -50,7 +50,7 @@ export function TransactionDetail({ transaction: tx, onClose, onUpdated }: Trans
         </button>
       </div>
 
-      <div className="p-[20px] flex flex-col gap-[16px] flex-1">
+      <div className="p-[20px] flex flex-col gap-[16px] flex-1 overflow-y-auto">
         {/* Amount */}
         <div className="text-center mb-[8px]">
           <AmountDisplay cents={tx.amountCents} showPlus className="text-[32px] font-[700] tracking-[-0.03em]" />
