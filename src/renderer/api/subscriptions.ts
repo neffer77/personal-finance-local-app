@@ -1,5 +1,6 @@
 import type {
   SubscriptionWithCost,
+  SubscriptionCreate,
   SubscriptionUpdate,
   Subscription,
   DetectSubscriptionsResult,
@@ -24,9 +25,21 @@ export const subscriptionsApi = {
     return res.data
   },
 
+  async create(data: SubscriptionCreate): Promise<Subscription> {
+    const res: ApiResponse<Subscription> = await window.api.subscriptions.create(data)
+    if (!res.success || !res.data) throw new Error(res.error ?? 'Failed to create subscription')
+    return res.data
+  },
+
   async update(data: SubscriptionUpdate): Promise<Subscription> {
     const res: ApiResponse<Subscription> = await window.api.subscriptions.update(data)
     if (!res.success || !res.data) throw new Error(res.error ?? 'Failed to update subscription')
+    return res.data
+  },
+
+  async resetOverride(id: number): Promise<Subscription> {
+    const res: ApiResponse<Subscription> = await window.api.subscriptions.resetOverride(id)
+    if (!res.success || !res.data) throw new Error(res.error ?? 'Failed to reset override')
     return res.data
   },
 
