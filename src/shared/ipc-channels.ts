@@ -45,7 +45,9 @@ export const IPC = {
   // Subscriptions
   SUBSCRIPTIONS_LIST: 'subscriptions:list',
   SUBSCRIPTIONS_DETECT: 'subscriptions:detect',
+  SUBSCRIPTIONS_CREATE: 'subscriptions:create',
   SUBSCRIPTIONS_UPDATE: 'subscriptions:update',
+  SUBSCRIPTIONS_RESET_OVERRIDE: 'subscriptions:reset-override',
   SUBSCRIPTIONS_ARCHIVE: 'subscriptions:archive',
 
   // Goals (Phase 3)
