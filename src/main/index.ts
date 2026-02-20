@@ -31,7 +31,7 @@ function createWindow(): void {
   // Load the renderer
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()  // Uncomment to auto-open DevTools (or press F12 manually)
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
