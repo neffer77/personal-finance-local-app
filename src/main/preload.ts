@@ -11,6 +11,7 @@ import type {
   RuleUpdate,
   ImportRequest,
   SettingUpdate,
+  SubscriptionCreate,
   SubscriptionUpdate,
   GoalCreate,
   GoalUpdate,
@@ -89,8 +90,12 @@ const api = {
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_LIST),
     detect: () =>
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_DETECT),
+    create: (data: SubscriptionCreate) =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_CREATE, data),
     update: (data: SubscriptionUpdate) =>
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_UPDATE, data),
+    resetOverride: (id: number) =>
+      ipcRenderer.invoke(IPC.SUBSCRIPTIONS_RESET_OVERRIDE, id),
     archive: (id: number) =>
       ipcRenderer.invoke(IPC.SUBSCRIPTIONS_ARCHIVE, id),
   },

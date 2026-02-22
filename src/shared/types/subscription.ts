@@ -5,6 +5,8 @@ export interface Subscription {
   name: string
   categoryId: number | null
   estimatedAmountCents: number | null
+  manualOverrideAmountCents: number | null
+  isManual: boolean
   billingCycle: BillingCycle
   firstSeenDate: string | null
   lastSeenDate: string | null
@@ -25,9 +27,18 @@ export interface SubscriptionUpdate {
   id: number
   name?: string
   categoryId?: number | null
+  manualOverrideAmountCents?: number | null
   reviewDate?: string | null
   notes?: string | null
   isActive?: boolean
+}
+
+export interface SubscriptionCreate {
+  name: string
+  estimatedAmountCents: number
+  categoryId?: number | null
+  billingCycle?: BillingCycle
+  notes?: string | null
 }
 
 export interface DetectSubscriptionsResult {

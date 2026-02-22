@@ -3,6 +3,7 @@ import type {
   Subscription,
   SubscriptionWithCost,
   SubscriptionUpdate,
+  SubscriptionCreate,
   BillingCycle,
   DetectSubscriptionsResult,
 } from '../../shared/types'
@@ -16,6 +17,8 @@ interface SubscriptionRow {
   name: string
   category_id: number | null
   estimated_amount_cents: number | null
+  manual_override_amount_cents: number | null
+  is_manual: number
   billing_cycle: string
   first_seen_date: string | null
   last_seen_date: string | null
@@ -49,6 +52,8 @@ function rowToSubscription(row: SubscriptionRow): Subscription {
     name: row.name,
     categoryId: row.category_id,
     estimatedAmountCents: row.estimated_amount_cents,
+    manualOverrideAmountCents: row.manual_override_amount_cents,
+    isManual: row.is_manual === 1,
     billingCycle: row.billing_cycle as BillingCycle,
     firstSeenDate: row.first_seen_date,
     lastSeenDate: row.last_seen_date,
@@ -155,10 +160,10 @@ export function listSubscriptions(): SubscriptionWithCost[] {
     SELECT
       s.*,
       CASE s.billing_cycle
-        WHEN 'monthly'   THEN s.estimated_amount_cents * 12
-        WHEN 'quarterly' THEN s.estimated_amount_cents * 4
-        WHEN 'annual'    THEN s.estimated_amount_cents
-        WHEN 'weekly'    THEN s.estimated_amount_cents * 52
+        WHEN 'monthly'   THEN COALESCE(s.manual_override_amount_cents, s.estimated_amount_cents) * 12
+        WHEN 'quarterly' THEN COALESCE(s.manual_override_amount_cents, s.estimated_amount_cents) * 4
+        WHEN 'annual'    THEN COALESCE(s.manual_override_amount_cents, s.estimated_amount_cents)
+        WHEN 'weekly'    THEN COALESCE(s.manual_override_amount_cents, s.estimated_amount_cents) * 52
         ELSE NULL
       END AS annual_cost_cents,
       c.name AS category_name,
@@ -167,7 +172,7 @@ export function listSubscriptions(): SubscriptionWithCost[] {
     LEFT JOIN categories c ON s.category_id = c.id
     LEFT JOIN subscription_transactions st ON st.subscription_id = s.id
     GROUP BY s.id
-    ORDER BY s.is_active DESC, s.estimated_amount_cents DESC
+    ORDER BY s.is_active DESC, COALESCE(s.manual_override_amount_cents, s.estimated_amount_cents) DESC
   `).all() as SubscriptionCostRow[]
 
   return rows.map(rowToWithCost)
@@ -181,6 +186,10 @@ export function updateSubscription(data: SubscriptionUpdate): Subscription {
 
   if (data.name !== undefined) { updates.push('name = ?'); params.push(data.name) }
   if (data.categoryId !== undefined) { updates.push('category_id = ?'); params.push(data.categoryId) }
+  if (data.manualOverrideAmountCents !== undefined) {
+    updates.push('manual_override_amount_cents = ?')
+    params.push(data.manualOverrideAmountCents)
+  }
   if (data.reviewDate !== undefined) { updates.push('review_date = ?'); params.push(data.reviewDate) }
   if (data.notes !== undefined) { updates.push('notes = ?'); params.push(data.notes) }
   if (data.isActive !== undefined) { updates.push('is_active = ?'); params.push(data.isActive ? 1 : 0) }
@@ -190,6 +199,45 @@ export function updateSubscription(data: SubscriptionUpdate): Subscription {
 
   const row = db.prepare('SELECT * FROM subscriptions WHERE id = ?').get(data.id) as SubscriptionRow | undefined
   if (!row) throw new Error(`Subscription not found: ${data.id}`)
+  return rowToSubscription(row)
+}
+
+export function createSubscription(data: SubscriptionCreate): Subscription {
+  const db = getDatabase()
+
+  const result = db.prepare(`
+    INSERT INTO subscriptions (
+      name,
+      estimated_amount_cents,
+      category_id,
+      billing_cycle,
+      notes,
+      is_manual
+    ) VALUES (?, ?, ?, ?, ?, 1)
+  `).run(
+    data.name,
+    data.estimatedAmountCents,
+    data.categoryId ?? null,
+    data.billingCycle ?? 'monthly',
+    data.notes ?? null,
+  )
+
+  const row = db.prepare('SELECT * FROM subscriptions WHERE id = ?').get(result.lastInsertRowid) as SubscriptionRow | undefined
+  if (!row) throw new Error('Failed to create subscription')
+  return rowToSubscription(row)
+}
+
+export function resetSubscriptionOverride(id: number): Subscription {
+  const db = getDatabase()
+
+  db.prepare(`
+    UPDATE subscriptions
+    SET manual_override_amount_cents = NULL, updated_at = datetime('now')
+    WHERE id = ?
+  `).run(id)
+
+  const row = db.prepare('SELECT * FROM subscriptions WHERE id = ?').get(id) as SubscriptionRow | undefined
+  if (!row) throw new Error(`Subscription not found: ${id}`)
   return rowToSubscription(row)
 }
 

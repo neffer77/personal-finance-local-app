@@ -12,6 +12,7 @@ import type {
   RuleUpdate,
   ImportRequest,
   SettingUpdate,
+  SubscriptionCreate,
   SubscriptionUpdate,
   GoalCreate,
   GoalUpdate,
@@ -66,7 +67,9 @@ declare global {
       subscriptions: {
         list: () => Promise<ApiResponse<unknown>>
         detect: () => Promise<ApiResponse<unknown>>
+        create: (data: SubscriptionCreate) => Promise<ApiResponse<unknown>>
         update: (data: SubscriptionUpdate) => Promise<ApiResponse<unknown>>
+        resetOverride: (id: number) => Promise<ApiResponse<unknown>>
         archive: (id: number) => Promise<ApiResponse<unknown>>
       }
       goals: {
