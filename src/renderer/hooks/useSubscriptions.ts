@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { subscriptionsApi } from '../api/subscriptions'
-import type { SubscriptionWithCost, SubscriptionUpdate, DetectSubscriptionsResult } from '../../shared/types'
+import type {
+  SubscriptionWithCost,
+  SubscriptionCreate,
+  SubscriptionUpdate,
+  DetectSubscriptionsResult,
+} from '../../shared/types'
 
 export interface UseSubscriptionsResult {
   subscriptions: SubscriptionWithCost[]
@@ -9,7 +14,9 @@ export interface UseSubscriptionsResult {
   error: string | null
   refetch: () => void
   detect: () => Promise<DetectSubscriptionsResult>
+  create: (data: SubscriptionCreate) => Promise<void>
   update: (data: SubscriptionUpdate) => Promise<void>
+  resetOverride: (id: number) => Promise<void>
   archive: (id: number) => Promise<void>
 }
 
@@ -51,22 +58,27 @@ export function useSubscriptions(): UseSubscriptionsResult {
     }
   }, [fetch])
 
+  const create = useCallback(async (data: SubscriptionCreate): Promise<void> => {
+    setError(null)
+    try {
+      await subscriptionsApi.create(data)
+      await fetch()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create subscription')
+      throw err
+    }
+  }, [fetch])
+
   const update = useCallback(async (data: SubscriptionUpdate): Promise<void> => {
     await subscriptionsApi.update(data)
-    setSubscriptions((prev) =>
-      prev.map((s) =>
-        s.id === data.id
-          ? {
-              ...s,
-              ...(data.name !== undefined && { name: data.name }),
-              ...(data.reviewDate !== undefined && { reviewDate: data.reviewDate }),
-              ...(data.notes !== undefined && { notes: data.notes }),
-              ...(data.isActive !== undefined && { isActive: data.isActive }),
-            }
-          : s,
-      ),
-    )
-  }, [])
+    // Refetch to get recalculated annual_cost_cents from the DB
+    await fetch()
+  }, [fetch])
+
+  const resetOverride = useCallback(async (id: number): Promise<void> => {
+    await subscriptionsApi.resetOverride(id)
+    await fetch()
+  }, [fetch])
 
   const archive = useCallback(async (id: number): Promise<void> => {
     await subscriptionsApi.archive(id)
@@ -82,7 +94,9 @@ export function useSubscriptions(): UseSubscriptionsResult {
     error,
     refetch: fetch,
     detect,
+    create,
     update,
+    resetOverride,
     archive,
   }
 }
